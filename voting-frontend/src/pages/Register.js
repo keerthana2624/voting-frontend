@@ -1,33 +1,55 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import API from '../api/axios';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import './Auth.css';
 
 const Register = () => {
-  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
-  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+  });
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      await API.post('/auth/register', formData);
-      alert('Registration successful!');
-      navigate('/');
-    } catch (error) {
-      alert('Registration failed!');
-    }
+    console.log('Register Data:', formData);
+    // Add fetch/axios POST to your backend here
   };
 
   return (
-    <div>
-      <h2>Register</h2>
-      <form onSubmit={handleSubmit}>
-        <input name="name" placeholder="Full Name" onChange={handleChange} required />
-        <input name="email" type="email" placeholder="Email" onChange={handleChange} required />
-        <input name="password" type="password" placeholder="Password" onChange={handleChange} required />
+    <div className="auth-container">
+      <form className="auth-form" onSubmit={handleSubmit}>
+        <h2>Register</h2>
+        <input
+          type="text"
+          placeholder="Username"
+          name="username"
+          value={formData.username}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="email"
+          placeholder="Email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          required
+        />
         <button type="submit">Register</button>
+        <Link className="link" to="/login">
+          Already have an account? Login
+        </Link>
       </form>
     </div>
   );

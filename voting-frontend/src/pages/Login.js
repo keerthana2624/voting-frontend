@@ -1,35 +1,40 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import API from '../api/axios';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import './Auth.css';
 
 const Login = () => {
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const navigate = useNavigate();
-
-  const handleChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const res = await API.post('/auth/login', formData);
-      localStorage.setItem('token', res.data.token);
-      alert('Login successful!');
-      navigate('/elections');
-    } catch (error) {
-      alert('Login failed!');
-    }
+    console.log('Login Data:', { email, password });
+    // Add fetch/axios POST to your backend here
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <input name="email" type="email" placeholder="Email" onChange={handleChange} required />
-        <input name="password" type="password" placeholder="Password" onChange={handleChange} required />
+    <div className="auth-container">
+      <form className="auth-form" onSubmit={handleSubmit}>
+        <h2>Login</h2>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
         <button type="submit">Login</button>
+        <Link className="link" to="/register">
+          Don't have an account? Register
+        </Link>
       </form>
-      <p>Don’t have an account? <a href="/register">Register here</a></p>
     </div>
   );
 };
