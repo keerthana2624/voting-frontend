@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
-// import './Elections.css';
+import './Elections.css';
 
 const Elections = () => {
   const [elections, setElections] = useState([]);
