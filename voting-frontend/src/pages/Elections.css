@@ -1,0 +1,59 @@
+/* src/pages/Elections.css */
+
+.elections-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    font-family: Arial, sans-serif;
+  }
+  
+  .elections-container h2 {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  
+  .loading,
+  .error {
+    text-align: center;
+    color: #555;
+  }
+  
+  .error {
+    color: red;
+  }
+  
+  .election-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .election-item {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .election-item h3 {
+    margin: 0 0 0.5rem;
+  }
+  
+  .election-item p {
+    margin: 0 0 1rem;
+    color: #555;
+  }
+  
+  .election-item button {
+    background-color: #0066cc;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .election-item button:hover {
+    background-color: #004999;
+  }
+  
