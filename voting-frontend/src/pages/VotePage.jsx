@@ -1,71 +1,92 @@
-// src/pages/VotePage.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import API from '../api/axios';
+import './VotePage.css';
 
 const VotePage = () => {
-  const { id } = useParams();
+  const { id: electionId } = useParams();
   const [election, setElection] = useState(null);
-  const [voted, setVoted] = useState(false);
+  const [voted, setVoted]       = useState(false);
+  const [results, setResults]   = useState(null);
+  const [error, setError]       = useState('');
 
+  // 1. Fetch the election details
   useEffect(() => {
     const fetchElection = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/elections/${id}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-        const data = await res.json();
-        setElection(data);
+        const res = await API.get(`/elections/${electionId}`);
+        setElection(res.data);
       } catch (err) {
-        console.error('Fetch error:', err);
+        console.error(err);
+        setError('Failed to load election');
       }
     };
-
     fetchElection();
-  }, [id]);
+  }, [electionId]);
 
-  const handleVote = async (candidateName) => {
-    if (voted) return alert("You've already voted!");
+  // 2. Cast a vote
+  const handleVote = async (candidate) => {
+    if (voted) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/votes/${id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({ candidate: candidateName }),
-      });
-
-      const result = await res.json();
-      if (res.ok) {
-        alert('Vote cast successfully!');
-        setVoted(true);
-      } else {
-        alert(result.error || 'Failed to vote');
-      }
+      const res = await API.post('/votes', { electionId, candidate });
+      setVoted(true);
+      // After voting, fetch results
+      fetchResults();
     } catch (err) {
-      console.error('Vote error:', err);
+      console.error(err);
+      setError(err.response?.data?.message || 'Vote failed');
     }
   };
 
-  if (!election) return <p>Loading...</p>;
+  // 3. Fetch results
+  const fetchResults = async () => {
+    try {
+      const res = await API.get(`/votes/results/${electionId}`);
+      setResults(res.data.results);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  if (error) return <p className="error">{error}</p>;
+  if (!election) return <p>Loading election…</p>;
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div className="vote-container">
       <h2>{election.title}</h2>
-      <p>{election.description}</p>
+      {election.description && <p className="description">{election.description}</p>}
+
       <h3>Candidates</h3>
-      {election.candidates.map((c, index) => (
-        <div key={index} style={{ marginBottom: '10px' }}>
-          <strong>{c.name}</strong> - {c.info}
-          <br />
-          <button onClick={() => handleVote(c.name)} disabled={voted}>
-            Vote
-          </button>
+      <ul className="candidate-list">
+        {election.candidates.map((c, i) => (
+          <li key={i} className="candidate-item">
+            <div>
+              <strong>{c.name}</strong>
+              {c.info && <span className="info"> — {c.info}</span>}
+            </div>
+            <button
+              onClick={() => handleVote(c.name)}
+              disabled={voted}
+            >
+              {voted ? 'Voted' : 'Vote'}
+            </button>
+          </li>
+        ))}
+      </ul>
+
+      {voted && results && (
+        <div className="results">
+          <h3>Current Results</h3>
+          <ul>
+            {Object.entries(results).map(([name, count]) => (
+              <li key={name}>
+                {name}: {count} vote{count !== 1 && 's'}
+              </li>
+            ))}
+          </ul>
         </div>
-      ))}
+      )}
     </div>
   );
 };
