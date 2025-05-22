@@ -1,25 +1,33 @@
-// client/src/pages/Elections.jsx
+// src/pages/Elections.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Elections.css';
+import API from '../api/axios';
+// import './Elections.css';
 
 const Elections = () => {
   const [elections, setElections] = useState([]);
+  const [loading, setLoading]       = useState(true);
+  const [error, setError]           = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchElections = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/elections'); // ✅ update if deployed
-        const data = await res.json();
-        setElections(data);
+        const res = await API.get('/elections');
+        setElections(res.data);                // should be an array
       } catch (err) {
-        console.error('Error fetching elections:', err);
+        console.error(err);
+        setError(err.response?.data?.message || err.message);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchElections();
   }, []);
+
+  if (loading) return <p className="loading">Loading elections…</p>;
+  if (error)   return <p className="error">Error: {error}</p>;
 
   return (
     <div className="elections-container">
@@ -28,11 +36,11 @@ const Elections = () => {
         <p>No elections found.</p>
       ) : (
         <ul className="election-list">
-          {elections.map((election) => (
-            <li key={election._id} className="election-item">
-              <h3>{election.title}</h3>
-              <p>{election.description}</p>
-              <button onClick={() => navigate(`/vote/${election._id}`)}>
+          {elections.map((e) => (
+            <li key={e._id} className="election-item">
+              <h3>{e.title}</h3>
+              {e.description && <p>{e.description}</p>}
+              <button onClick={() => navigate(`/vote/${e._id}`)}>
                 Vote Now
               </button>
             </li>
